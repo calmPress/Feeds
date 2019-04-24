@@ -15,6 +15,8 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+declare(strict_types=1);
+
 namespace calmpress\atomfeeds;
 
 add_action( 'atom_head', __NAMESPACE__ . '\atom_site_icon' );
@@ -39,7 +41,7 @@ function atom_site_icon() {
  *
  * @param bool $for_comments Legacy from WordPress, being ignored.
  */
-function do_feed_atom( $for_comments ) {
+function do_feed_atom( $for_comments = false ) {
 	load_template( __DIR__ . '/feed-atom.php' );
 }
 
@@ -113,3 +115,25 @@ function atom_enclosure() {
 		}
 	}
 }
+
+/**
+ * On plugin activation regenerate the rewrite rules to make sure they include
+ * the Atom related endpoints.
+ *
+ * Deleting the option itself seems like the only way to force rebuild on next
+ * page load instead of using the current page lacking rules.
+ */
+register_activation_hook( __FILE__, function () {
+	delete_option( 'rewrite_rules' );
+} );
+
+/**
+ * On plugin deactivation regenerate the rewrite rules to make sure they include
+ * the Atom related endpoints.
+ *
+ * Deleting the option itself seems like the only way to force rebuild on next
+ * page load instead of using the current page lacking rules.
+ */
+register_deactivation_hook( __FILE__, function () {
+	delete_option( 'rewrite_rules' );
+} );
